@@ -23,7 +23,8 @@ const About = () => {
           <h3>Random Forest Algorithm</h3>
           <p>
             Built using Random Forest Classifier, which combines multiple decision trees 
-            to provide robust and reliable fraud detection capabilities.
+            to provide robust and reliable fraud detection capabilities.<br />
+            <strong>Note:</strong> The model uses only anonymized PCA features V1-V28 for prediction.
           </p>
         </div>
       </div>
@@ -31,9 +32,9 @@ const About = () => {
       <div className="alert alert-warning">
         <h3><FaDatabase style={{ marginRight: '10px' }} />Dataset Information</h3>
         <p>
-          The model is trained on a comprehensive dataset of credit card transactions. 
-          The features V1-V28 are the result of PCA transformation to protect sensitive 
-          customer information while maintaining the predictive power of the model.
+          The model is trained on a comprehensive dataset of credit card transactions.<br />
+          <strong>Features used:</strong> Only V1-V28 (PCA transformed, anonymized).<br />
+          Amount and Time are not used directly; all input features are anonymized for privacy.
         </p>
       </div>
       
@@ -44,16 +45,16 @@ const About = () => {
           <div style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
             <h4>1. Data Input</h4>
             <p>
-              Enter transaction details including amount, time, and the 28 PCA-transformed features. 
-              You can analyze single transactions or upload CSV files for batch processing.
+              Enter the 28 PCA-transformed features (V1-V28) which represent anonymized 
+              transaction characteristics. You can analyze single transactions or upload CSV files for batch processing.
             </p>
           </div>
           
           <div style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
-            <h4>2. Feature Preprocessing</h4>
+            <h4>2. Feature Processing</h4>
             <p>
-              The system automatically scales the amount and time features using pre-trained 
-              scalers to ensure optimal model performance.
+              The system uses only the anonymized PCA features (V1-V28) for prediction.<br />
+              No direct scaling of amount or time is performed.
             </p>
           </div>
           

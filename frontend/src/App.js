@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import { BrowserRouter as Router } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import TabNavigation from './components/TabNavigation';
 import SinglePrediction from './components/SinglePrediction';

@@ -18,15 +18,11 @@ try:
     base_dir = os.path.dirname(os.path.dirname(__file__))
     model = joblib.load(os.path.join(base_dir, 'rf_model.joblib'))
     feature_columns = joblib.load(os.path.join(base_dir, 'feature_columns.joblib'))
-    scaler_amount = joblib.load(os.path.join(base_dir, 'scaler_amount.joblib'))
-    scaler_time = joblib.load(os.path.join(base_dir, 'scaler_time.joblib'))
-    logger.info("Model and scalers loaded successfully")
+    logger.info("Model and features loaded successfully")
 except Exception as e:
     logger.error(f"Error loading model: {e}")
     model = None
     feature_columns = None
-    scaler_amount = None
-    scaler_time = None
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
