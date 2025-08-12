@@ -1,0 +1,13 @@
+{
+  "name": "credit-card-fraud-backend",
+  "version": "1.0.0",
+  "description": "Flask backend for Credit Card Fraud Detection",
+  "main": "app.py",
+  "scripts": {
+    "start": "python app.py",
+    "dev": "python app.py"
+  },
+  "keywords": ["fraud-detection", "machine-learning", "flask", "api"],
+  "author": "Your Name",
+  "license": "MIT"
+}
