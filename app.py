@@ -7,12 +7,11 @@ import json
 @st.cache_resource
 def load_assets():
     model = joblib.load('rf_model.joblib')
-    scaler = joblib.load('amount_time_scaler.joblib')
     with open('feature_meta.json', 'r') as f:
         meta = json.load(f)
-    return model, scaler, meta['features']
+    return model, meta['features']
 
-model, scaler, features = load_assets()
+model, features = load_assets()
 
 st.set_page_config(page_title="Credit Card Fraud Detector", layout="wide")
 st.title("💳 Credit Card Fraud Detection App")
@@ -23,14 +22,7 @@ st.write("Enter transaction details to check if it’s **Fraud** or **Not Fraud*
 with st.form("single_form"):
     inputs = {}
     for feat in features:
-        if feat == "Amount_scaled":
-            val = st.number_input("Transaction Amount", min_value=0.0)
-            inputs['Amount_scaled'] = scaler.transform([[val]])[0][0]
-        elif feat == "Time_scaled":
-            val = st.number_input("Transaction Time (seconds from start)", min_value=0.0)
-            inputs['Time_scaled'] = scaler.transform([[val]])[0][0]
-        else:
-            inputs[feat] = st.number_input(feat, value=0.0)
+        inputs[feat] = st.number_input(feat, value=0.0)
     submitted = st.form_submit_button("Predict")
 
 if submitted:
@@ -49,14 +41,8 @@ uploaded_file = st.file_uploader("Upload CSV file with columns: Amount, Time, an
 
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
-
-    # Scale Amount and Time
-    if "Amount" in df.columns:
-        df['Amount_scaled'] = scaler.transform(df[['Amount']])
-        df.drop(columns=['Amount'], inplace=True)
-    if "Time" in df.columns:
-        df['Time_scaled'] = scaler.transform(df[['Time']])
-        df.drop(columns=['Time'], inplace=True)
+    # Only use V1-V28 features for prediction
+    df = df[[feat for feat in features if feat in df.columns]]
 
     # Reorder columns
     df = df[features]
