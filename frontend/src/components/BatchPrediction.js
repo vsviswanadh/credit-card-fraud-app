@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../api';
 import toast from 'react-hot-toast';
 import { FaUpload, FaDownload, FaSpinner, FaFileExcel } from 'react-icons/fa';
 
@@ -46,9 +46,20 @@ const BatchPrediction = () => {
         }
       }
 
-      const response = await axios.post('/api/predict/batch', { transactions });
+      const response = await api.post('/api/predict/batch', { transactions });
       setResults(response.data.results);
       toast.success(`Processed ${response.data.results.length} transactions`);
+      
+      // Scroll to results after successful batch prediction
+      setTimeout(() => {
+        const resultElement = document.querySelector('.card:last-child');
+        if (resultElement) {
+          resultElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+        }
+      }, 100);
     } catch (error) {
       console.error('Batch prediction error:', error);
       toast.error('Failed to process file. Please check the format.');

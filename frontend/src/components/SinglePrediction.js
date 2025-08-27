@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../api';
 import toast from 'react-hot-toast';
 import { FaExclamationTriangle, FaCheckCircle, FaSpinner } from 'react-icons/fa';
 
@@ -21,13 +21,50 @@ const SinglePrediction = () => {
     }));
   };
 
+  const handleV1Paste = (e) => {
+    // Get the pasted text
+    const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+    
+    // Check if the pasted text contains multiple numbers (comma or space separated)
+    if (pastedText.includes(',') || pastedText.includes(' ')) {
+      // Split by comma or space and clean up
+      const values = pastedText.split(/[,\s]+/).map(v => v.trim()).filter(v => v !== '');
+      
+      // If we have exactly 28 values, populate all fields
+      if (values.length === 28) {
+        e.preventDefault(); // Prevent the default paste behavior
+        
+        const newFormData = {};
+        for (let i = 1; i <= 28; i++) {
+          newFormData[`v${i}`] = values[i - 1];
+        }
+        setFormData(prev => ({
+          ...prev,
+          ...newFormData
+        }));
+        
+        // Move focus to the submit button
+        setTimeout(() => {
+          const submitButton = document.querySelector('button[type="submit"]');
+          if (submitButton) {
+            submitButton.focus();
+          }
+        }, 100);
+        
+        toast.success('All 28 values populated automatically!');
+      } else if (values.length > 0) {
+        toast.error(`Expected 28 values, but got ${values.length}. Please check your input.`);
+      }
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setPrediction(null);
 
     try {
-      const response = await axios.post('/api/predict', formData);
+      const response = await api.post('/api/predict', formData);
       setPrediction(response.data);
       
       if (response.data.is_fraud) {
@@ -35,6 +72,18 @@ const SinglePrediction = () => {
       } else {
         toast.success('✅ Transaction appears safe');
       }
+      
+      // Scroll to results after successful prediction
+      setTimeout(() => {
+        const resultElement = document.querySelector('.result-card');
+        if (resultElement) {
+          resultElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+        }
+      }, 100);
+      
     } catch (error) {
       console.error('Prediction error:', error);
       toast.error('Failed to get prediction. Please try again.');
@@ -50,6 +99,14 @@ const SinglePrediction = () => {
       v21: '', v22: '', v23: '', v24: '', v25: '', v26: '', v27: '', v28: ''
     });
     setPrediction(null);
+    
+    // Scroll to top when form is reset
+    setTimeout(() => {
+      window.scrollTo({ 
+        top: 0, 
+        behavior: 'smooth' 
+      });
+    }, 100);
   };
 
   const fillSampleData = () => {
@@ -61,6 +118,7 @@ const SinglePrediction = () => {
       v21: '-0.018307', v22: '0.277838', v23: '-0.110474', v24: '0.066928', v25: '0.128539',
       v26: '-0.189115', v27: '0.133558', v28: '-0.021053'
     });
+    toast.success('Sample data filled! You can also copy this data and paste it in V1 field to test the auto-fill feature.');
   };
 
   const renderPredictionResult = () => {
@@ -128,6 +186,17 @@ const SinglePrediction = () => {
         <p style={{ marginBottom: '20px', color: '#666', fontSize: '0.9rem' }}>
           These are PCA-transformed features that include transaction amount, time, and other anonymized variables.
         </p>
+        <div style={{ 
+          backgroundColor: '#e3f2fd', 
+          border: '1px solid #2196f3', 
+          borderRadius: '4px', 
+          padding: '10px', 
+          marginBottom: '20px',
+          fontSize: '0.9rem',
+          color: '#1976d2'
+        }}>
+          💡 <strong>Quick Fill:</strong> Paste 28 comma or space-separated values in the V1 field to auto-populate all fields instantly!
+        </div>
         <div className="grid grid-4">
           {Array.from({ length: 28 }, (_, i) => (
             <div key={i} className="form-group">
@@ -139,20 +208,28 @@ const SinglePrediction = () => {
                 className="form-control"
                 value={formData[`v${i + 1}`]}
                 onChange={handleInputChange}
+                onPaste={i === 0 ? handleV1Paste : undefined}
                 step="any"
                 required
-                placeholder="0.0"
+                placeholder={i === 0 ? "0.0 or paste 28 values here" : "0.0"}
               />
             </div>
           ))}
         </div>
 
-        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '30px' }}>
+        <div style={{ 
+          display: 'flex', 
+          gap: '15px', 
+          justifyContent: 'center', 
+          marginTop: '30px',
+          flexWrap: 'wrap'
+        }}>
           <button
             type="button"
             className="btn"
             onClick={fillSampleData}
             disabled={loading}
+            style={{ minWidth: '140px' }}
           >
             Fill Sample Data
           </button>
@@ -161,6 +238,7 @@ const SinglePrediction = () => {
             type="submit"
             className="btn"
             disabled={loading}
+            style={{ minWidth: '160px' }}
           >
             {loading ? (
               <>
@@ -177,6 +255,7 @@ const SinglePrediction = () => {
             className="btn btn-danger"
             onClick={handleReset}
             disabled={loading}
+            style={{ minWidth: '100px' }}
           >
             Reset Form
           </button>
